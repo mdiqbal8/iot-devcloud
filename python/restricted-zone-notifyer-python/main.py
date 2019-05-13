@@ -181,13 +181,11 @@ def main():
         dims = ""
         ret, next_frame = cap.read()
         if not ret:
-            KEEP_RUNNING = False
             break
 
         initial_wh = [cap.get(3), cap.get(4)]
 
         if next_frame is None:
-            KEEP_RUNNING = False
             log.error("ERROR! blank FRAME grabbed")
             break
 
@@ -246,7 +244,6 @@ def main():
 
         if key_pressed == 27:
             print("Attempting to stop background threads")
-            KEEP_RUNNING = False
             break
     if args.output_dir is None:
         cv2.destroyAllWindows()
