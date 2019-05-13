@@ -30,11 +30,8 @@ import json
 import time
 import socket
 import cv2
-
 import logging as log
-#import paho.mqtt.client as mqtt
 
-#from threading import Thread
 from collections import namedtuple
 from argparse import ArgumentParser
 from inference import Network
@@ -46,19 +43,7 @@ from demoTools.demoutils import *
 MyStruct = namedtuple("assemblyinfo", "safe")
 INFO = MyStruct(True)
 
-# MQTT server environment variables
-#HOSTNAME = socket.gethostname()
-#IPADDRESS = socket.gethostbyname(HOSTNAME)
-TOPIC = "Restricted_zone_python"
-#MQTT_HOST = IPADDRESS
-#MQTT_PORT = 1883
-#MQTT_KEEPALIVE_INTERVAL = 60
-
-# Flag to control background thread
-KEEP_RUNNING = True
-
 DELAY = 5
-
 
 def build_argparser():
     """
@@ -146,19 +131,6 @@ def ssd_out(res, args, initial_wh, selected_region):
                 INFO = INFO._replace(safe=False)
 
 
-def message_runner():
-    """
-    Publish worker status to MQTT topic.
-    Pauses for rate second(s) between updates
-
-    :return: None
-    """
-    while KEEP_RUNNING:
-        time.sleep(1)
-        CLIENT.publish(TOPIC, payload=json.dumps({"Worker safe": INFO.safe,
-                                                  "Alert": not INFO.safe}))
-
-
 def main():
     """
     Load the network and parse the output.
@@ -168,10 +140,6 @@ def main():
     global DELAY
     global CLIENT
     global SIG_CAUGHT
-    global KEEP_RUNNING
-    #CLIENT = mqtt.Client()
-    #CLIENT.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-    #CLIENT.subscribe(TOPIC)
     log.basicConfig(format="[ %(levelname)s ] %(message)s",
                     level=log.INFO, stream=sys.stdout)
     args = build_argparser().parse_args()
@@ -202,10 +170,6 @@ def main():
     # Load the network to IE plugin to get shape of input layer
     n, c, h, w = infer_network.load_model(args.model, args.device, 1, 1, 0, args.cpu_extension)
 
-    #message_thread = Thread(target=message_runner, args=())
-   # message_thread.setDaemon(True)
-    #message_thread.start()
-    #out = cv2.VideoWriter(os.path.join(args.output_dir, "out.mp4"),0x00000021, 60, (1920, 1080), True)
     ret, frame = cap.read()
     video_len = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_count = 0
@@ -238,21 +202,6 @@ def main():
             roi_h = next_frame.shape[0]
         key_pressed = cv2.waitKey(int(DELAY))
 
-        # 'c' key pressed
-        if key_pressed == 99:
-            # Give operator chance to change the area
-            # Select rectangle from left upper corner, dont display crosshair
-            ROI = cv2.selectROI("Assembly Selection", frame, True, False)
-            print("Assembly Area Selection: -x = {}, -y = {}, -w = {},"
-                  " -h = {}".format(ROI[0], ROI[1], ROI[2], ROI[3]))
-            roi_x = ROI[0]
-            roi_y = ROI[1]
-            roi_w = ROI[2]
-            roi_h = ROI[3]
-            cv2.destroyAllWindows()
-
-        cv2.rectangle(frame, (roi_x, roi_y),
-                      (roi_x + roi_w, roi_y + roi_h), (0, 0, 255), 2)
         selected_region = [roi_x, roi_y, roi_w, roi_h]
         selected_region = [roi_x, roi_y, roi_w, roi_h]
         x_max1= str(selected_region[0])
@@ -276,10 +225,6 @@ def main():
         # Parse SSD output
         ssd_out(res, args, initial_wh, selected_region)
 
-        # Draw performance stats
-        #inf_time_message = "Inference time: {:.3f} ms".format(det_time * 1000)
-        #render_time_message = "OpenCV rendering time: {:.3f} ms". \
-           # format(render_time * 1000)
         est = str(render_time * 1000)
         time1 = round(det_time*1000)
         Worker = INFO.safe
@@ -289,19 +234,7 @@ def main():
         dims += '\n'
         result_file.write(dims)
 
-
-       # if not INFO.safe:
-          #  warning = "HUMAN IN ASSEMBLY AREA: PAUSE THE MACHINE!"
-          #  cv2.putText(frame, warning, (15, 80), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0, 0, 255), 2)
-
-        #cv2.putText(frame, inf_time_message, (15, 15), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-        #cv2.putText(frame, render_time_message, (15, 35), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-        #cv2.putText(frame, "Worker Safe: {}".format(INFO.safe), (15, 55), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-
         render_start = time.time()
-        #cv2.imshow("Restricted Zone Notifier", frame)
-        #out.write(frame)
-       
         render_end = time.time()
         render_time = render_end - render_start
         
@@ -319,17 +252,14 @@ def main():
         cv2.destroyAllWindows()
     else:
         total_time = time.time() - infer_time_start
-        with open(os.path.join(args.output_dir, 'stats_'+str(job_id)+'.txt'), 'w') as f:
+        with open(os.path.join(args.output_dir, 'stats.txt'), 'w') as f:
             f.write(str(round(total_time, 1))+'\n')
             f.write(str(frame_count)+'\n')
 
 
     infer_network.clean()
-   # message_thread.join()
     cap.release()
     cv2.destroyAllWindows()
-   # CLIENT.disconnect()
-
 
 if __name__ == '__main__':
     main()
