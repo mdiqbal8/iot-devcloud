@@ -39,10 +39,7 @@ from demoTools.demoutils import *
 
 # CONSTANTS
 CONF_FILE = "./resources/conf.txt"
-EVENT_FILE = "./UI/resources/video_data/events.json"
-DATA_FILE = "./UI/resources/video_data/data.json"
 TARGET_DEVICE = "CPU"
-OUTPUT_VIDEO_PATH = "./UI/resources/videos"
 CPU_EXTENSION = ""
 LOOP_VIDEO = False
 CONF_THRESHOLD_VALUE = 0.55
@@ -264,106 +261,9 @@ def get_input():
     file.close()
     return [0, labels]
 
-'''
-def save_json():
-    """
-    Write the video results to json files
-
-    :return status: 0 on success, negative value on failure
-    """
-    global video_caps
-    global EVENT_FILE
-    global DATA_FILE
-    events = []
-    if video_caps:
-        events = video_caps[0].events
-    total = 0
-    event_json = open(EVENT_FILE,'w') 
-    if not event_json:
-        return -10
-    
-    data_json = open(DATA_FILE,'w')
-    if not data_json:
-        return -11
-
-    data_json.write("{\n\t\"video1\": {\n")
-    event_json.write("{\n\t\"video1\": {\n")
-    events_size = len(events) - 1
-    if events:
-        fps = video_caps[0].vc.get(cv2.CAP_PROP_FPS)
-        for i in range(events_size):
-            event_json.write("\t\t\"%d\":{\n" % (i))
-            event_json.write("\t\t\t\"time\":\"%s\",\n" % events[i].time)
-            event_json.write("\t\t\t\"content\":\"%s\",\n" % events[i].intruder)
-            event_json.write("\t\t\t\"videoTime\":\"%d\"\n" % float(events[i].frame / fps))
-            event_json.write("\t\t},\n")
-            data_json.write("\t\t\"%d\": \"%d\",\n" % (float(events[i].frame / fps), events[i].count))      
-        event_json.write("\t\t\"%d\":{\n" % events_size)
-        event_json.write("\t\t\t\"time\":\"%s\",\n" % events[events_size].time)
-        event_json.write("\t\t\t\"content\":\"%s\",\n" % events[events_size].intruder)
-        event_json.write("\t\t\t\"videoTime\":\"%d\"\n" % float(events[events_size].frame / fps))
-        event_json.write("\t\t}\n")
-        data_json.write("\t\t\"%d\": \"%d\"\n" % (float(events[events_size].frame / fps), events[events_size].count))
-        total = events[events_size].count
-    event_json.write("\t}\n")
-    event_json.write("}")
-    data_json.write("\t},\n")
-    data_json.write("\t\"totals\":{\n")
-    data_json.write("\t\t\"video1\": \"%d\"\n" % total)
-    data_json.write("\t}\n")
-    data_json.write("}")
-    event_json.close()
-    data_json.close()
-    return 0
-'''
-
-def arrange_windows():
-    """
-    Arranges the windows so that they are not overlapping
-
-    :return None:
-    """
-    global CONF_WINDOW_COLUMNS
-    global video_caps
-    spacer = 470
-    row_spacer = 250
-    cols = 0
-    rows = 0
-    window_width = 768
-    window_height = 432
-
-    # Arrange log window
-    cv2.namedWindow("Intruder Log", cv2.WINDOW_AUTOSIZE)
-    cv2.moveWindow("Intruder Log", 0, 0)
-
-    # Arrange video windows
-    for idx in range(len(video_caps)):
-        if cols == CONF_WINDOW_COLUMNS:
-            rows += 1
-            cols = 1
-            cv2.namedWindow(video_caps[idx].cam_name, cv2.WINDOW_NORMAL)
-            cv2.resizeWindow(video_caps[idx].cam_name, window_width, window_height)
-            cv2.moveWindow(video_caps[idx].cam_name, spacer * cols, row_spacer * rows)
-        else:
-            cols += 1
-            cv2.namedWindow(video_caps[idx].cam_name, cv2.WINDOW_NORMAL)
-            cv2.resizeWindow(video_caps[idx].cam_name, window_width, window_height)
-            cv2.moveWindow(video_caps[idx].cam_name, spacer * cols, row_spacer * rows)
-
-
 # Signal handler
 def signal_handler(sig, frame):
     global video_caps
-    global EVENT_FILE
-    global DATA_FILE
-   # if video_caps:
-      #  ret = save_json()
-      #  if ret != 0:
-       #     if ret == -10:
-        #        print("Could not create event JSON file " + EVENT_FILE + "!")
-       #     elif ret == -11:
-       #         print("Could not create data JSON file " + DATA_FILE + "!")
-
     clean_up()
     sys.exit(0)
 
@@ -438,8 +338,6 @@ def intruder_detector():
     infer_network = Network()
     # Load the network to IE plugin to get shape of input layer
     n, c, h, w = infer_network.load_model(model_xml,TARGET_DEVICE, 1, 1, 0, CPU_EXTENSION)
-    # Arrange windows so that they are not overlapping
-    #arrange_windows()
 
     min_fps = min([i.vc.get(cv2.CAP_PROP_FPS) for i in video_caps])
     signal.signal(signal.SIGINT, signal_handler, )
@@ -470,7 +368,6 @@ def intruder_detector():
                 stream_end_message = "Stream from {} has ended.".format(video_cap.cam_name)
                 cv2.putText(stream_end_frame, stream_end_message, (int(video_cap.input_width/2) - 30,
                             int(video_cap.input_height/2) - 30), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-                #cv2.imshow(video_cap.cam_name, stream_end_frame)
                 continue
             for i in range(video_cap.no_of_labels):
                 video_cap.current_count[i] = 0
@@ -544,11 +441,9 @@ def intruder_detector():
                 cv2.putText(log_window, log, (10, 20 * i + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
             log_window = cv2.cvtColor(log_window, cv2.COLOR_GRAY2BGR)
             statsVideo.write(log_window)
-            #cv2.imshow("Intruder Log", log_window)
             video_cap.frame_count += 1
 
-            # Video output
-            
+            # Video output        
             inf_time_message = "Inference time: {:.3f} ms".format(inf_time * 1000)
             cv2.putText(video_cap.frame, inf_time_message, (10, int(video_cap.input_height) - 30),
                         cv2.FONT_HERSHEY_COMPLEX, 0.5, (200, 10, 10), 1)
@@ -558,7 +453,6 @@ def intruder_detector():
                         cv2.FONT_HERSHEY_COMPLEX, 0.5, (200, 10, 10), 1)
 
             # Display the video output
-            #cv2.imshow(video_cap.cam_name, video_cap.frame)
             video_cap.vw.write(video_cap.frame)
             if video_cap.frame_count %10 == 0: 
                 progressUpdate(progress_file_path, time.time()-infer_start_time,video_cap.frame_count, int(video_cap.vc.get(cv2.CAP_PROP_FRAME_COUNT)))
@@ -577,25 +471,14 @@ def intruder_detector():
         if False not in no_more_data:
             progressUpdate(progress_file_path, time.time()-infer_start_time, int(video_cap.vc.get(cv2.CAP_PROP_FRAME_COUNT)), int(video_cap.vc.get(cv2.CAP_PROP_FRAME_COUNT))) 
             break
-    
-        #if False not in no_more_data:
-          #  break
+
     no_more_data = False
     t2 = time.time()-infer_start_time
     for videos in video_caps:
-        print(videos.length)
-        print(videos.closed)
-    print("End loop")
-    print("Total time {0}".format(t2))
-    print("Total frame count {0}".format(frame_count))
-    print("fps {0}".format(frame_count/t2))
-    with open(os.path.join(output_dir, 'stats.txt'), 'w') as f:
-        f.write('{} \n'.format(round(t2)))
-        f.write('{} \n'.format(frame_count))
+   	 with open(os.path.join(output_dir, 'stats.txt'), 'w') as f:
+        	f.write('{} \n'.format(round(t2)))
+        	f.write('{} \n'.format(videos.frame_count))
 
-    #ret = save_json()
-    #if ret != 0:
-        #return ret, ''
     infer_network.clean()
     log_file.close()
     return 0, ''
@@ -626,10 +509,6 @@ if __name__ == '__main__':
         print("Could not find the video file " + value+ "!")
     elif status == -9:
         print("\nCould not open " + value +" for reading!")
-    #elif status == -10:
-        #print("Could not create event JSON file " + EVENT_FILE + "!")
-   # elif status == -11:
-       # print("Could not create data JSON file " + DATA_FILE + "!")
     elif status == -12:
         print(CONF_FILE + " configuration file not found!")
     elif status == -13:
