@@ -141,12 +141,9 @@ def main():
         input_stream = args.input
         assert os.path.isfile(args.input), "Specified input file doesn't exist"
 
-    cap = cv2.VideoCapture(input_stream)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH )) 
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) 
+    cap = cv2.VideoCapture(input_stream) 
     video_len = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = int(cap.get(cv2.CAP_PROP_FPS))
-    out = cv2.VideoWriter(os.path.join(args.output_dir, "out.mp4"),0x00000021, fps, (width, height), True)
     frame_count = 0
     job_id = os.environ['PBS_JOBID']
     progress_file_path = os.path.join(args.output_dir,'i_progress_'+str(job_id)+'.txt')
@@ -160,12 +157,12 @@ def main():
     prob_threshold = args.prob_threshold
     initial_w = cap.get(3)
     initial_h = cap.get(4)
+    people_counter = cv2.VideoWriter(os.path.join(args.output_dir, "people_counter.mp4"),0x00000021, fps, (int(initial_w), int(initial_h)), True)
     while cap.isOpened():
         flag, frame = cap.read()
         frame_count += 1
         if not flag:
             break
-        key_pressed = cv2.waitKey(60)
         # Start async inference
         image = cv2.resize(frame, (w, h))
         # Change data layout from HWC to CHW
@@ -193,23 +190,18 @@ def main():
 
             last_count = current_count
 
-            if key_pressed == 27:
-                break
-            out.write(frame)
+            people_counter.write(frame)
         if frame_count%10 == 0: 
             progressUpdate(progress_file_path, int(time.time()-infer_time_start), frame_count, video_len)
 
         if single_image_mode:
             cv2.imwrite('output_image.jpg', frame)
-    if args.output_dir is None:
-        cv2.destroyAllWindows()
-    else:
+    if args.output_dir:
         total_time = time.time() - infer_time_start
         with open(os.path.join(args.output_dir, 'stats.txt'), 'w') as f:
             f.write(str(round(total_time, 1))+'\n')
             f.write(str(frame_count)+'\n')
     cap.release()
-    cv2.destroyAllWindows()
     infer_network.clean()
 
 
