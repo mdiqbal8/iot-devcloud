@@ -50,14 +50,10 @@ CONF_CANDIDATE_CONFIDENCE = 4
 CODEC = 0x00000021
 output_dir=" "
 
-# Opencv windows per each row
-CONF_WINDOW_COLUMNS = 2
-
 # Global variables
 model_xml = ''
 model_bin = ''
 conf_labels_file_path = ''
-accepted_device = ["CPU", "GPU", "HETERO:FPGA,CPU", "MYRIAD"]
 video_caps = []
 
 
@@ -157,29 +153,6 @@ def parse_args():
     if args.output_dir:
         output_dir=args.output_dir
 
-
-def check_args():
-    """
-    Validate the command line arguments
-    :return status code: 0 on success, negative value on failure
-    """
-    global model_xml
-    global conf_labels_file_path
-    global TARGET_DEVICE
-
-    if model_xml == '':
-        return -2
-    
-    if conf_labels_file_path == '':
-        return -3
-
-    if TARGET_DEVICE not in accepted_device:
-        print("Unsupported device " + TARGET_DEVICE + ". Defaulting to CPU")
-        TARGET_DEVICE = "CPU"
-
-    return 0
-
-
 def get_used_labels(req_labels):
     """
     Read the model's label file and get the position of labels required by the application
@@ -261,19 +234,11 @@ def get_input():
     file.close()
     return [0, labels]
 
-# Signal handler
-def signal_handler(sig, frame):
-    global video_caps
-    clean_up()
-    sys.exit(0)
-
-
 def clean_up():
     """
     Destroys all the opencv windows and releases the objects of videoCapture and videoWriter
     """
     global video_caps
-    cv2.destroyAllWindows()
     for video_cap in video_caps:
         if video_cap.vw:
             video_cap.vw.release()
@@ -340,11 +305,9 @@ def intruder_detector():
     n, c, h, w = infer_network.load_model(model_xml,TARGET_DEVICE, 1, 1, 0, CPU_EXTENSION)
 
     min_fps = min([i.vc.get(cv2.CAP_PROP_FPS) for i in video_caps])
-    signal.signal(signal.SIGINT, signal_handler, )
     no_more_data = [False] * len(video_caps)
     start_time = time.time()
     inf_time = 0
-    frame_count1=0
     statsVideo = cv2.VideoWriter(os.path.join(output_dir,'Statistics.mp4'), 0x00000021, min_fps, (LOG_WIN_WIDTH, LOG_WIN_HEIGHT), True)
     job_id = os.environ['PBS_JOBID']
     progress_file_path = os.path.join(output_dir,'i_progress_'+str(job_id)+'.txt')
@@ -355,7 +318,6 @@ def intruder_detector():
             # Get a new frame
             vfps = int(round(video_cap.vc.get(cv2.CAP_PROP_FPS)))
             for i in range(0, int(round(vfps / min_fps))):
-                #frame_count1 += 1
                 ret, video_cap.frame = video_cap.vc.read()
                 video_cap.loop_frames += 1
                 # If no new frame or error in reading a frame, exit the loop
@@ -466,8 +428,6 @@ def intruder_detector():
                     video_cap.loop_frames = 0
                     video_cap.vc.set(cv2.CAP_PROP_POS_FRAMES, 0)      
 
-        if cv2.waitKey(1) == 27:
-            break
         if False not in no_more_data:
             progressUpdate(progress_file_path, time.time()-infer_start_time, int(video_cap.vc.get(cv2.CAP_PROP_FRAME_COUNT)), int(video_cap.vc.get(cv2.CAP_PROP_FRAME_COUNT))) 
             break
