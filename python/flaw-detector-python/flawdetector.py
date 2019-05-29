@@ -296,15 +296,6 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
             fps = cap.get(cv2.CAP_PROP_FPS)
             delay = (int)(1000 / fps)
 
-    capture = cv2.VideoCapture(vid_path)
-
-    # Check if video is loaded successfully
-    if capture.isOpened():
-        print("Opened video!!")
-
-    else:
-        print("Problem loading the video!!!")
-
     try:
         vw = None
         while True:
