@@ -98,8 +98,8 @@ def detect_orientation(frame, contours, base_dir, count_object):
     :param contours: contour of the object from the frame
     :return: defect_flag, object_defect
     """
-    defect = "Orientation"
     global OBJECT_COUNT
+    defect = "Orientation"
     object_defect = "Defect : Orientation"
     # Find the orientation of each contour
     angle = get_orientation(contours)
@@ -140,10 +140,10 @@ def detect_color(frame, cnt, base_dir, count_object):
     :param cnt: Contours of the object
     :return: color_flag, object_defect
     """
+    global OBJECT_COUNT
     defect = "Color"
     LOWER_COLOR_RANGE = (0, 0, 0)
     UPPER_COLOR_RANGE = (174, 73, 255)
-    global OBJECT_COUNT
     object_defect = "Defect : Color"
     color_flag = False
     # Increase the brightness of the image
@@ -195,8 +195,8 @@ def detect_crack(frame, cnt, base_dir, count_object):
     :param cnt: Contours of the object
     :return: defect_flag, object_defect, cnt
     """
-    defect = "Crack"
     global OBJECT_COUNT
+    defect = "Crack"
     object_defect = "Defect : Crack"
     defect_flag = False
     low_threshold = 130
