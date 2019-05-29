@@ -246,7 +246,21 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
     if base_dir == None:
        base_dir = os.getcwd()
 
-
+     if vid_path:
+        if vid_path == 'CAM':
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                print("\nCamera not plugged in... Exiting...\n")
+                sys.exit(0)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            delay = (int)(1000 / fps)
+        else:
+            cap = cv2.VideoCapture(vid_path)
+            if not cap.isOpened():
+                print("\nUnable to open video file... Exiting...\n")
+                sys.exit(0)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            delay = (int)(1000 / fps)
     dir_names = ["crack", "color", "orientation", "no_defect"]
     frame_count = 0
     num_of_dir = 4
@@ -280,21 +294,6 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
             file_list = os.listdir(os.path.join(base_dir, dir_names[i]))
             for f in file_list:
                 os.remove(os.path.join(base_dir,dir_names[i],f))
-    if vid_path:
-        if vid_path == 'CAM':
-            cap = cv2.VideoCapture(0)
-            if not cap.isOpened():
-                print("\nCamera not plugged in... Exiting...\n")
-                sys.exit(0)
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            delay = (int)(1000 / fps)
-        else:
-            cap = cv2.VideoCapture(vid_path)
-            if not cap.isOpened():
-                print("\nUnable to open video file... Exiting...\n")
-                sys.exit(0)
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            delay = (int)(1000 / fps)
 
     try:
         vw = None
@@ -375,7 +374,6 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
                     continue
 
             all_defects = " ".join(defect)
-
             cv2.putText(frame, all_defects, (5, 140), cv2.FONT_HERSHEY_DUPLEX, 0.75, (255, 255, 255), 2)
             cv2.putText(frame, OBJECT_COUNT, (5, 50), cv2.FONT_HERSHEY_DUPLEX, 0.75, (255, 255, 255), 2)
             cv2.putText(frame, "Length (mm): {}".format(HEIGHT_OF_OBJ), (5, 80),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
@@ -391,17 +389,6 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
     finally:
         if vw != None:
             vw.release()
-
-
-if __name__ == '__main__':
-    data = []
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dir', required=False, help="Name of the directory to which defective images are saved")
-    parser.add_argument('-f', '--vid', default=0, help="Name of the video file")
-    args = vars(parser.parse_args())
-    base_dir = args['dir']
-    vid_path = args['vid']
-    runFlawDetector(vid_path, base_dir, distance, fieldofview)
 
 
 
