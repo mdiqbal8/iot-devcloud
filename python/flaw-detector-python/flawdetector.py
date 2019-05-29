@@ -26,15 +26,42 @@
 import cv2
 import argparse
 import socket
+import math
 import os
 
+from argparse import ArgumentParser
+
 import numpy as np
+from math import atan2
 
 from math import atan2
 
+OBJECT_AREA_MIN = 9000
+OBJECT_AREA_MAX = 50000
+LOWER_COLOR_RANGE = (0, 0, 0)
+UPPER_COLOR_RANGE = (174, 73, 255)
+COUNT_OBJECT = 0
+HEIGHT_OF_OBJ = 0
+WIDTH_OF_OBJ = 0
+OBJECT_COUNT = "Object Number : {}".format(COUNT_OBJECT)
+
 # Lower and upper value of color Range of the object for color thresholding to detect the object
 
+def dimensions(box):
+    """
+    Return the length and width of the object.
 
+    :param box: consists of top left, right and bottom left, right co-ordinates
+    :return: Length and width of the object
+    """
+    (tl, tr, br, bl) = box
+    x = int(math.sqrt(math.pow((bl[0] - tl[0]), 2) + math.pow((bl[1] - tl[1]), 2)))
+    y = int(math.sqrt(math.pow((tl[0] - tr[0]), 2) + math.pow((tl[1] - tr[1]), 2)))
+
+    if x > y:
+        return x, y
+    else:
+        return y, x
 
 '''
 *********************************************** Orientation Defect detection ******************************************
@@ -71,6 +98,8 @@ def detect_orientation(frame, contours, base_dir, count_object):
     :param contours: contour of the object from the frame
     :return: defect_flag, object_defect
     """
+    defect = "Orientation"
+    global OBJECT_COUNT
     object_defect = "Defect : Orientation"
     # Find the orientation of each contour
     angle = get_orientation(contours)
@@ -82,6 +111,10 @@ def detect_orientation(frame, contours, base_dir, count_object):
         print("Orientation defect detected in object {}".format(count_object))
         defect_flag = True
         cv2.imwrite("{}/orientation/Orientation_{}.jpg".format(base_dir, count_object), frame[y - 5: y + h + 10, x - 5: x + w + 10])
+        cv2.putText(frame, OBJECT_COUNT, (5, 50), cv2.FONT_HERSHEY_SIMPLEX,0.75, (255, 255, 255), 2)
+        cv2.putText(frame, "Defect: {}".format(defect), (5, 140),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+        cv2.putText(frame, "Length (mm): {}".format(HEIGHT_OF_OBJ), (5, 80),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+        cv2.putText(frame, "Width (mm): {}".format(WIDTH_OF_OBJ), (5, 110),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
     return defect_flag, object_defect
 
 
@@ -107,9 +140,10 @@ def detect_color(frame, cnt, base_dir, count_object):
     :param cnt: Contours of the object
     :return: color_flag, object_defect
     """
+    defect = "Color"
     LOWER_COLOR_RANGE = (0, 0, 0)
     UPPER_COLOR_RANGE = (174, 73, 255)
-
+    global OBJECT_COUNT
     object_defect = "Defect : Color"
     color_flag = False
     # Increase the brightness of the image
@@ -132,6 +166,13 @@ def detect_color(frame, cnt, base_dir, count_object):
         print("Color defect detected in object {}".format(count_object))
         print("{}/color/Color_{}.jpg".format(base_dir, count_object))
         cv2.imwrite("{}/color/Color_{}.jpg".format(base_dir, count_object), frame[y - 5: y + h + 10, x - 5: x + w + 10])
+        cv2.putText(frame, OBJECT_COUNT, (5, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.75, (255, 255, 255), 2)
+        cv2.putText(frame, "Defect: {}".format(defect), (5, 140),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+        cv2.putText(frame, "Length (mm): {}".format(HEIGHT_OF_OBJ), (5, 80),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+        cv2.putText(frame, "Width (mm): {}".format(WIDTH_OF_OBJ), (5, 110),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
     return color_flag, object_defect
 
 
@@ -154,6 +195,8 @@ def detect_crack(frame, cnt, base_dir, count_object):
     :param cnt: Contours of the object
     :return: defect_flag, object_defect, cnt
     """
+    defect = "Crack"
+    global OBJECT_COUNT
     object_defect = "Defect : Crack"
     defect_flag = False
     low_threshold = 130
@@ -179,14 +222,19 @@ def detect_crack(frame, cnt, base_dir, count_object):
         if defect_flag == True:
             x, y, w, h = cv2.boundingRect(cnt)
             cv2.imwrite("{}/crack/Crack_{}.jpg".format(base_dir, count_object), frame[y - 5: y + h + 20, x - 5: x + w + 10])
+            cv2.putText(frame, OBJECT_COUNT, (5, 50), cv2.FONT_HERSHEY_SIMPLEX,0.75, (255, 255, 255), 2)
+            cv2.putText(frame, "Defect: {}".format(defect), (5, 140),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(frame, "Length (mm): {}".format(HEIGHT_OF_OBJ),(5, 80),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(frame, "Width (mm): {}".format(WIDTH_OF_OBJ), (5, 110),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
             print("Crack defect detected in object {}".format(count_object))
     return defect_flag, object_defect, cnt
 
 
+def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, draw_callback=None):
 
-def runFlawDetector(vid_path = 0, base_dir=None, draw_callback = None):
-
-    OBJECT_AREA = 9000
+    global HEIGHT_OF_OBJ
+    global WIDTH_OF_OBJ
+    global OBJECT_COUNT
     LOW_H = 0
     LOW_S = 0
     LOW_V = 47
@@ -194,7 +242,6 @@ def runFlawDetector(vid_path = 0, base_dir=None, draw_callback = None):
     HIGH_S = 255
     HIGH_V = 255
     count_object = 0
-
 
     if base_dir == None:
        base_dir = os.getcwd()
@@ -205,7 +252,26 @@ def runFlawDetector(vid_path = 0, base_dir=None, draw_callback = None):
     num_of_dir = 4
     frame_number = 40
     defect = []
-
+    if distance and fieldofview:
+        width_of_video = cap.get(3)
+        height_of_video = cap.get(4)
+        # Convert degrees to radians
+        radians = (fieldofview / 2) * 0.0174533
+        # Calculate the diagonal length of image in millimeters using
+        # field of view of camera and distance between object and camera.
+        diagonal_length_of_image_plane = abs(
+            2 * (distance / 10) * math.tan(radians))
+        # Calculate diagonal length of image in pixel
+        diagonal_length_in_pixel = math.sqrt(
+            math.pow(width_of_video, 2) + math.pow(height_of_video, 2))
+        # Convert one pixel value in millimeters
+        one_pixel_length = (diagonal_length_of_image_plane /
+                            diagonal_length_in_pixel)
+    # If distance between camera and object and field of view of camera
+    # are not provided, then 96 pixels per inch is considered.
+    # pixel_lengh = 2.54 cm (1 inch) / 96 pixels
+    else:
+            one_pixel_length = 0.0264583333
     # create folders with the given dir_names to save defective objects
     for i in range(len(dir_names)):
         if not os.path.exists(os.path.join(base_dir, dir_names[i])):
@@ -214,6 +280,21 @@ def runFlawDetector(vid_path = 0, base_dir=None, draw_callback = None):
             file_list = os.listdir(os.path.join(base_dir, dir_names[i]))
             for f in file_list:
                 os.remove(os.path.join(base_dir,dir_names[i],f))
+    if vid_path:
+        if vid_path == 'CAM':
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                print("\nCamera not plugged in... Exiting...\n")
+                sys.exit(0)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            delay = (int)(1000 / fps)
+        else:
+            cap = cv2.VideoCapture(vid_path)
+            if not cap.isOpened():
+                print("\nUnable to open video file... Exiting...\n")
+                sys.exit(0)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            delay = (int)(1000 / fps)
 
     capture = cv2.VideoCapture(vid_path)
 
@@ -224,22 +305,23 @@ def runFlawDetector(vid_path = 0, base_dir=None, draw_callback = None):
     else:
         print("Problem loading the video!!!")
 
-    # OpenCV video write to store the output video
     try:
         vw = None
         while True:
             # Read the frame from the stream
-            _, frame = capture.read()
+            _, frame = cap.read()
 
             if np.shape(frame) == ():
                 break
 
             frame_count += 1
-            object_count = "Object Number : {}".format(count_object)
+            OBJECT_COUNT = "Object Number : {}".format(count_object)
 
             # Check every given frame number (Number chosen based on the frequency of object on conveyor belt)
             if frame_count % frame_number == 0:
                 defect = []
+                HEIGHT_OF_OBJ = 0
+                WIDTH_OF_OBJ = 0
 
                 # Convert BGR image to HSV color space
                 img_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -260,26 +342,34 @@ def runFlawDetector(vid_path = 0, base_dir=None, draw_callback = None):
 
                 for cnt in contours:
                     x, y, width, height = cv2.boundingRect(cnt)
-                    if width * height > OBJECT_AREA:
+                    if OBJECT_AREA_MAX > width * height > OBJECT_AREA_MIN:
+                        box = cv2.minAreaRect(cnt)
+                        box = cv2.boxPoints(box)
+                        height, width = dimensions(np.array(box, dtype='int'))
+                        HEIGHT_OF_OBJ = round(height * one_pixel_length * 10, 2)
+                        WIDTH_OF_OBJ = round(width * one_pixel_length * 10, 2)
                         count_object += 1
                         frame_copy = frame.copy()
-                        object_count = "Object Number : {}".format(count_object)
+                        frame_orient = frame.copy()
+                        frame_clr = frame.copy()
+                        frame_crack = frame.copy()
+                        frame_nodefect = frame.copy()
+                        OBJECT_COUNT = "Object Number : {}".format(count_object)
 
                         # Check for the orientation of the object
-                        orientation_flag, orientation_defect = detect_orientation(frame, cnt, base_dir, count_object)
+                        orientation_flag, orientation_defect = detect_orientation(frame_orient, cnt, base_dir, count_object)
                         if orientation_flag == True:
                             defect.append(str(orientation_defect))
 
                         # Check for the color defect of the object
-                        color_flag, color_defect = detect_color(frame, cnt, base_dir, count_object)
+                        color_flag, color_defect = detect_color(frame_clr, cnt, base_dir, count_object)
                         if color_flag == True:
                             defect.append(str(color_defect))
 
                         # Check for the crack defect of the object
-                        crack_flag, crack_defect, crack_contour = detect_crack(frame_copy, cnt, base_dir, count_object)
+                        crack_flag, crack_defect, crack_contour = detect_crack(frame_crack, cnt, base_dir, count_object)
                         if crack_flag == True:
                             defect.append(str(crack_defect))
-                            cv2.drawContours(frame, crack_contour, -1, (0, 255, 0), 2)
 
                         # Check if none of the defect is found
                         if not defect:
@@ -287,13 +377,18 @@ def runFlawDetector(vid_path = 0, base_dir=None, draw_callback = None):
                             defect.append(str(object_defect))
                             print("No defect detected in object {}".format(count_object))
                             cv2.imwrite("{}/no_defect/Nodefect_{}.jpg".format(base_dir, count_object), frame[y - 5: y + height + 10, x - 5: x + width + 10])
+                            cv2.putText(frame_nodefect, "Length (mm): {}".format(HEIGHT_OF_OBJ),(5, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255, 255, 255), 2)
+                            cv2.putText(frame_nodefect, "Width (mm): {}".format(WIDTH_OF_OBJ),(5, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(255, 255, 255), 2)
+                        print("Length (mm) = {}, width (mm) = {}".format(HEIGHT_OF_OBJ, WIDTH_OF_OBJ))
                 if not defect:
                     continue
 
             all_defects = " ".join(defect)
 
-            cv2.putText(frame, all_defects, (5, 130), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2)
-            cv2.putText(frame, object_count, (5, 50), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2)
+            cv2.putText(frame, all_defects, (5, 140), cv2.FONT_HERSHEY_DUPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(frame, OBJECT_COUNT, (5, 50), cv2.FONT_HERSHEY_DUPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(frame, "Length (mm): {}".format(HEIGHT_OF_OBJ), (5, 80),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(frame, "Width (mm): {}".format(WIDTH_OF_OBJ), (5, 110),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
             if draw_callback != None:
                 draw_callback(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             if vw == None:
@@ -315,6 +410,7 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     base_dir = args['dir']
     vid_path = args['vid']
-    runFlawDetector(vid_path, base_dir)
+    runFlawDetector(vid_path, base_dir, distance, fieldofview)
+
 
 
