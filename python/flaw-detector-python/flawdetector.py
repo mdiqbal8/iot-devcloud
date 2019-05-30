@@ -339,7 +339,6 @@ def runFlawDetector(vid_path= 0,distance= 0, fieldofview= 0, base_dir=None,  dra
                         count_object += 1
                         frame_copy = frame.copy()
                         frame_orient = frame.copy()
-                        frame_clr = frame.copy()
                         frame_crack = frame.copy()
                         frame_nodefect = frame.copy()
                         OBJECT_COUNT = "Object Number : {}".format(count_object)
@@ -350,7 +349,7 @@ def runFlawDetector(vid_path= 0,distance= 0, fieldofview= 0, base_dir=None,  dra
                             defect.append(str(orientation_defect))
 
                         # Check for the color defect of the object
-                        color_flag, color_defect = detect_color(frame_clr, cnt, base_dir, count_object)
+                        color_flag, color_defect = detect_color(frame, cnt, base_dir, count_object)
                         if color_flag == True:
                             defect.append(str(color_defect))
 
@@ -358,6 +357,7 @@ def runFlawDetector(vid_path= 0,distance= 0, fieldofview= 0, base_dir=None,  dra
                         crack_flag, crack_defect, crack_contour = detect_crack(frame_crack, cnt, base_dir, count_object)
                         if crack_flag == True:
                             defect.append(str(crack_defect))
+                            cv2.drawContours(frame, crack_contour, -1, (0, 255, 0), 2)
 
                         # Check if none of the defect is found
                         if not defect:
