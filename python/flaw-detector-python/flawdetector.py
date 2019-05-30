@@ -230,7 +230,7 @@ def detect_crack(frame, cnt, base_dir, count_object):
     return defect_flag, object_defect, cnt
 
 
-def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, draw_callback=None):
+def runFlawDetector(vid_path= 0,distance= 0, fieldofview= 0, base_dir=None,  draw_callback=None):
 
     global HEIGHT_OF_OBJ
     global WIDTH_OF_OBJ
@@ -242,11 +242,14 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
     HIGH_S = 255
     HIGH_V = 255
     count_object = 0
-
     if base_dir == None:
        base_dir = os.getcwd()
-
-     if vid_path:
+    dir_names = ["crack", "color", "orientation", "no_defect"]
+    frame_count = 0
+    num_of_dir = 4
+    frame_number = 40
+    defect = []
+    if vid_path:
         if vid_path == 'CAM':
             cap = cv2.VideoCapture(0)
             if not cap.isOpened():
@@ -261,11 +264,6 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
                 sys.exit(0)
             fps = cap.get(cv2.CAP_PROP_FPS)
             delay = (int)(1000 / fps)
-    dir_names = ["crack", "color", "orientation", "no_defect"]
-    frame_count = 0
-    num_of_dir = 4
-    frame_number = 40
-    defect = []
     if distance and fieldofview:
         width_of_video = cap.get(3)
         height_of_video = cap.get(4)
@@ -389,6 +387,5 @@ def runFlawDetector(vid_path= 0, base_dir=None, distance= 0, fieldofview= 0, dra
     finally:
         if vw != None:
             vw.release()
-
 
 
