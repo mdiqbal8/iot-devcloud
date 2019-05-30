@@ -250,14 +250,14 @@ def runFlawDetector(vid_path= 0,distance= 0, fieldofview= 0, base_dir=None,  dra
     frame_number = 40
     defect = []
     if vid_path:
-        if vid_path == 'CAM':
-            cap = cv2.VideoCapture(0)
-            if not cap.isOpened():
-                print("\nCamera not plugged in... Exiting...\n")
-                sys.exit(0)
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            delay = (int)(1000 / fps)
-        else:
+        #if vid_path == 'CAM':
+            #cap = cv2.VideoCapture(0)
+            #if not cap.isOpened():
+              #  print("\nCamera not plugged in... Exiting...\n")
+               # sys.exit(0)
+            #fps = cap.get(cv2.CAP_PROP_FPS)
+            #delay = (int)(1000 / fps)
+        #else:
             cap = cv2.VideoCapture(vid_path)
             if not cap.isOpened():
                 print("\nUnable to open video file... Exiting...\n")
