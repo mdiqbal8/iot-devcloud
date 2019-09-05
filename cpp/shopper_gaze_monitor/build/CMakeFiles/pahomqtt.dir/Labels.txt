@@ -1,0 +1,13 @@
+# Target labels
+ pahomqtt
+# Source files and their labels
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/CMakeFiles/pahomqtt
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/CMakeFiles/pahomqtt.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/CMakeFiles/pahomqtt-complete.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-install.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-mkdir.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-download.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-update.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-patch.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-configure.rule
+/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_gaze_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-build.rule

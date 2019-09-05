@@ -1,0 +1,17 @@
+
+########################################################################
+#      Date:           Thu Sep  5 05:33:59 PDT 2019
+#    Job ID:           49181.c003
+#      User:           u26213
+# Resources:           neednodes=1:tank-870:i5-6500te,nodes=1:tank-870:i5-6500te,walltime=01:00:00
+########################################################################
+
+[setupvars.sh] OpenVINO environment initialized
+MQTT sender thread stopped
+Video processing thread stopped
+
+########################################################################
+# End of output for job 49181.c003
+# Date: Thu Sep  5 05:34:16 PDT 2019
+########################################################################
+

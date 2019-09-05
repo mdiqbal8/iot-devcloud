@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/CMakeFiles/pahomqtt"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/CMakeFiles/pahomqtt.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/CMakeFiles/pahomqtt-complete.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-install.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-mkdir.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-download.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-update.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-patch.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-configure.rule"
+		},
+		{
+			"file" : "/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-stamp/pahomqtt-build.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"pahomqtt"
+		],
+		"name" : "pahomqtt"
+	}
+}

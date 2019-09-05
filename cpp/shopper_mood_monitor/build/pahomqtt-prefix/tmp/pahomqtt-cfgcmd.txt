@@ -1,0 +1,1 @@
+cmd='/usr/bin/cmake;-DPAHO_WITH_SSL=TRUE;-DCMAKE_INSTALL_PREFIX=/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/paho-build;-GUnix Makefiles;/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/paho-src'

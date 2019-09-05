@@ -1,0 +1,17 @@
+
+########################################################################
+#      Date:           Thu Sep  5 05:34:15 PDT 2019
+#    Job ID:           49185.c003
+#      User:           u26213
+# Resources:           neednodes=1:tank-870:iei-mustang-v100-mx8,nodes=1:tank-870:iei-mustang-v100-mx8,walltime=01:00:00
+########################################################################
+
+[setupvars.sh] OpenVINO environment initialized
+Video processing thread stopped
+MQTT sender thread stopped
+
+########################################################################
+# End of output for job 49185.c003
+# Date: Thu Sep  5 05:34:33 PDT 2019
+########################################################################
+
