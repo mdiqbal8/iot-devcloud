@@ -1,0 +1,1 @@
+/usr/bin/cc     CMakeFiles/test_sync_session_present.dir/test_sync_session_present.c.o  -o test_sync_session_present -rdynamic ../src/libpaho-mqtt3c.so.1.3.1 -lc -ldl -lpthread -Wl,-rpath,/home/u26213/Reference-samples/iot-devcloud/cpp/shopper_mood_monitor/build/pahomqtt-prefix/src/pahomqtt-build/src 

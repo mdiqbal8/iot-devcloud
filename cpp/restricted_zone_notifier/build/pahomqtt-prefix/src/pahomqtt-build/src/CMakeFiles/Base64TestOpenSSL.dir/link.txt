@@ -1,0 +1,1 @@
+/usr/bin/cc     CMakeFiles/Base64TestOpenSSL.dir/Base64.c.o  -o Base64TestOpenSSL -rdynamic -lssl -lcrypto 
