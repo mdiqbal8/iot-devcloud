@@ -1,0 +1,21 @@
+
+########################################################################
+#      Date:           Fri Aug 30 06:31:39 PDT 2019
+#    Job ID:           48071.c003
+#      User:           u26212
+# Resources:           neednodes=1:idc004nc2:intel-ncs2,nodes=1:idc004nc2:intel-ncs2,walltime=01:00:00
+########################################################################
+
+[setupvars.sh] OpenVINO environment initialized
+[ INFO ] Initializing plugin for MYRIAD device...
+[ INFO ] Loading network files for Face Detection
+[ INFO ] Checking Face Detection network inputs
+[ INFO ] Checking Face Detection network outputs
+[ INFO ] Starting inference ...
+[ INFO ] To stop the demo execution press Esc button
+
+########################################################################
+# End of output for job 48071.c003
+# Date: Fri Aug 30 06:32:09 PDT 2019
+########################################################################
+
